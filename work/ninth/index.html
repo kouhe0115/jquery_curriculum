@@ -21,12 +21,47 @@
       // $.ajax({}) 外部ファイルやURLに対してデータをリクエストすることができます。これだけだと少しわからないと思うので下に文法を書いておきます。
       //
       // [文法]
-      // $.ajax({
-      //   url: './data.json'
-      // })
-      // .done(function(data) {
-      //   console.log(data);
-      // });
+
+      function buildHTML(data){
+        var html = `
+          <li class="colorList__item">
+            <p class="colorList__title" style="background-color:${ data.hexValue };">${ data.colorName }</p>
+          </li>
+        `
+          return html;
+      };
+
+
+
+        $.ajax({
+          url: 'data.json',
+          dataType: "json"
+        })
+        .done(function(data){
+          console.log(data);
+          $.each(data, function(i, data){
+            data.forEach(function(data) {
+              console.log(data.colorName);
+              var html = buildHTML(data);
+              $('.colorList').append(html);
+            });            
+          })
+        })
+
+        var lists = [
+          { name: 'バナナ', price: '100' },
+          { name: 'リンゴ', price: '200' },
+          { name: 'メロン', price: '400' },
+          { name: 'ブドウ', price: '250' },
+        ];
+
+        $.each(lists, function(i, list){
+          console.log(list)
+          console.log(list.name);
+          console.log(list.price);
+        })
+
+      
       //
       // 今回の場合は同じ階層にあるdata.jsonに対してリクエストを飛ばして、中にあるオブジェクトを取得します。
       // そのオブジェクトは
@@ -37,9 +72,7 @@
       // そのため、次の行でconsole.log(data)をすると中身のオブジェクトが確認できます。
       //
       // [テンプレート]
-      // <li class="colorList__item">
-      //   <p class="colorList__title" style="background-color: ;"></p>
-      // </li>
+
       //
       // このテンプレートに取得してきた中身を入れて表示します。
     </script>
