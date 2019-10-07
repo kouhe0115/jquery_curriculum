@@ -21,23 +21,23 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
-     $(function(){
-      var text_max = 30;
-      $(".rest-count").text(text_max - $(".input").val().length);
-      $(".input").on("keyup", function(){
-        var text_lenght = $(this).val().replace(/\s+/g,'').length;
-        var count_down = text_max - text_lenght;
-        $(".rest-count").text(count_down);
+      $(function(){
+        var text_max = 30;
+        $(".rest-count").text(text_max - $(".input").val().length);
+        $(".input").on("keyup", function(){
+          var text_lenght = $(this).val().replace(/\s+/g,'').length;
+          var count_down = text_max - text_lenght;
+          $(".rest-count").text(count_down);
 
-        if(count_down < 0){
-          $('.rest-count').css({
+          if(count_down < 0){
+            $('.rest-count').css({
               color: 'red',
               fontWeight:'bold'
-          });
-        } else {
+            });
+          } else {
             $('.rest-count').css({
-                color:'#000000',
-                fontWeight:'normal'
+              color:'#000000',
+              fontWeight:'normal'
             });
           }
         })

@@ -32,8 +32,6 @@
         var searchword = '';
         var oldword = '';
 
-        var jqxhr;
-
         // function buildHTML(item){
         //   var html = $('<li class="lists__item">' + '<div class="lists__item__inner">' + '<a href="' +
         //         item.Item.itemUrl + '"class="lists__item__link" target="_blank">' + '<img src="' + item.Item
@@ -85,9 +83,6 @@
         }
 
         $('#js-search-button').on('click', function(){
-          if(jqxhr){
-            jqxhr.abort();
-          }
           pageNum = pageNum + 1;
           searchword = search();
           keywordChack(searchword);
@@ -95,7 +90,7 @@
           console.log(searchword + ' 今回のキーワード');
 
 
-          jqxhr = $.ajax({
+          $.ajax({
             url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
             type: 'GET',
             datatype: 'json',
@@ -123,26 +118,13 @@
               $('.comment').html('<p class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</p>'); // commentにhtmlを追加
             } 
           })
-          .fail(function(){
-            // if (searchword == ''){
-            //   alert('キーワードがありません');
-            // } else if (searchword.length == 1) {
-            //   alert('キーワードは2文字以上入力してください');
-            // } else {
-            //   alert('通信状況をご確認ください');
-            // }
-
-            // if (jqxhr !== null){
-            //   console.log('連打');
-            // }
-            if (searchword == ''){
-              alert('キーワードがありません');
-            } else if ( jqxhr !== null) {
-              alert('連打')
-            } else if (searchword.match(/^[A-Za-z0-9]*$/).length == 1){
-              alert('半角一文字');
+          .fail(function(data){
+            console.log(data);
+            // API側のエラー使おう！！
+            if ( data.status == 0 ){
+              alert('通信エラー') 
             } else {
-              alert('通信状況を確認してください')
+              alert(data.responseJSON.error_description)
             }
           })
         });

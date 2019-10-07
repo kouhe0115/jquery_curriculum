@@ -26,9 +26,11 @@
     <script>
       $(function(){
         $('.nav').find('li').click(function(){
-          var num = $(this).index();
+          var now = $(this).index();
         $('.contents').find('li').addClass('is-hidden');
-        $('.contents').find('li').eq(num).removeClass('is-hidden');
+        $('.contents').find('li').eq(now).removeClass('is-hidden');
+        //eq()は、複数のHTML要素の中からインデックス番号を指定することで特定の要素だけを取得できる。
+        // 今回はnowで現在選択中のliを使っている
         })
       })
 

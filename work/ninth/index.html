@@ -38,30 +38,13 @@
           dataType: "json"
         })
         .done(function(data){
-          console.log(data);
-          $.each(data, function(i, data){
-            data.forEach(function(data) {
-              console.log(data.colorName);
-              var html = buildHTML(data);
-              $('.colorList').append(html);
-            });            
+          console.log(data.colorsArray);
+          $.each(data.colorsArray, function(i, data){
+            var html = buildHTML(data);
+            $('.colorList').append(html);          
           })
         })
 
-        var lists = [
-          { name: 'バナナ', price: '100' },
-          { name: 'リンゴ', price: '200' },
-          { name: 'メロン', price: '400' },
-          { name: 'ブドウ', price: '250' },
-        ];
-
-        $.each(lists, function(i, list){
-          console.log(list)
-          console.log(list.name);
-          console.log(list.price);
-        })
-
-      
       //
       // 今回の場合は同じ階層にあるdata.jsonに対してリクエストを飛ばして、中にあるオブジェクトを取得します。
       // そのオブジェクトは
