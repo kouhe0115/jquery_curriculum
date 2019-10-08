@@ -50,6 +50,7 @@
       $(function(){
         $('.menu__list li').hover(function() {
         $(this).children('ul').slideDown(500);
+        // children()は直下の子要素を取得する
       }, function() {
         $(this).children('ul').stop().slideUp(500);
       });
