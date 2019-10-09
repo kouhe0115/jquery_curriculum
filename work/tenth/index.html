@@ -25,151 +25,107 @@
       </div>
     </div>
     <script src="../../common/js/jquery.js"></script>
+    <!-- <script src="./main.js"></script> -->
     <script>
-
       $(function(){
+      // ページ取得用
         var pageNum = 0;
-        var searchword = '';
+        // 古いキーワード
         var oldword = '';
+        // 検索ワード
+        var searchword = '';
+        // htmlの雛形
+        var appendText = '';
 
-        // function buildHTML(item){
-        //   var html = $('<li class="lists__item">' + '<div class="lists__item__inner">' + '<a href="' +
-        //         item.Item.itemUrl + '"class="lists__item__link" target="_blank">' + '<img src="' + item.Item
-        //         .largeImageUrl + '" class="lists__item__img" alt="' + item.Item.title + '">' +
-        //         '<p class="lists__item__detail">作品名：　' + item.Item.title + '</p>' +
-        //         '<p class="lists__item__detail">作者　：　' + item.Item.author + '</p>' +
-        //         '<p class="lists__item__detail">出版社：　' + item.Item.publisherName + '</p>' + '</a>' +
-        //         '</div>' + '</li>');
-        //         return html;
-        // }
+        // 追加するhtmlの雛形
+        function buildHTML(item){
+          appendText +=  (
+            '<li class="lists__item">' +
+              '<div class="lists__item__inner">' + 
+                '<a href="' +　item.Item.itemUrl + '"class="lists__item__link" target="_blank">' + 
+                  '<img src="' + item.Item.largeImageUrl + '" class="lists__item__img" alt="' + item.Item.title + '">' +
+                  '<p class="lists__item__detail">作品名：　' + item.Item.title + '</p>' +
+                  '<p class="lists__item__detail">作者　：　' + item.Item.author + '</p>' +
+                  '<p class="lists__item__detail">出版社：　' + item.Item.publisherName + '</p>' + 
+                '</a>' +
+              '</div>' + 
+            '</li>');
+          return appendText;
+        }
 
-        // function search() {
-        //   var search = $('#js-search-word').val();
-        //   return search
-        // }
+        // 検索ワードの取得
+        function search() {
+          var search = $('#js-search-word').val();
+          return search
+        }
 
-
-        // function keywordChack(searchword){
-        //   if(oldword !== searchword) {
-        //     $('.lists').empty();
-        //     oldword = searchword;
-        //   }
-        // }
-
-        var buildHTML = item => {
-          // var html =
-          return(`<li class="lists__item">
-                    <div class="lists__item__inner">
-                      <a href= "${ item.Item.itemUrl }" class="lists__item__link" target="_blank">
-                        <img src="${ item.Item.largeImageUrl }" class="lists__item__img" alt="${ item.Item.title }">
-                        <p class="lists__item__detail">作品名： ${ item.Item.title }</p>
-                        <p class="lists__item__detail">作者　： ${ item.Item.author }</p>
-                        <p class="lists__item__detail">出版社： ${ item.Item.publisherName }</p>
-                      </a>
-                    </div> 
-                  </li>`)
-          // return html;
-        };
-
-        // 検索ワードを取得
-        var search = () => $('#js-search-word').val();
-
-        // 検索ワードの比較
-        var keywordChack = searchword => {
+        // 新旧キーワードの比較
+        function keywordChack(searchword){
           if(oldword !== searchword) {
             $('.lists').empty();
             oldword = searchword;
+            pageNum = 1;
+          }else{
+            pageNum++;
           }
         }
 
-        $('#js-search-button').on('click', function(){
-          pageNum = pageNum + 1;
-          searchword = search();
-          keywordChack(searchword);
-          console.log(oldword + ' 前のキーワード');
-          console.log(searchword + ' 今回のキーワード');
+        // APIから帰ってきたデータの処理
+        function checkResponseData(data){
+          if (data.count > 0 ){ // ヒットしたデータの件数が０以上
+            appendText = '';
+            $.each(data.Items, function(i, item){ 
+              appendText = (buildHTML(item));
+            })
+            $('.lists').prepend(appendText);
 
+          } else {
+            $('.lists').empty().before('<div class="comment"></div>'); //listsを空にする　listsの要素の上に追加
+            $('.comment').html('<p class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</p>'); // commentにhtmlを追加
+          } 
+        }
+
+        // エラー表示
+        function errorHandling(data){
+          !data.status ? alert('通信エラー') : alert(data.responseJSON.error_description);
+        }
+
+        // 楽天のAPIの処理
+        function rakutenAPI() {
+          searchword = search();
+          console.log(oldword + ' 前のキーワード');
+          keywordChack(searchword);
+          console.log(searchword + ' 今回のキーワード');
+          console.log(pageNum)
 
           $.ajax({
-            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522', //リクエスト先
             type: 'GET',
             datatype: 'json',
             data: {
               applicationId: '1019399324990976605',
               booksGenreId: '001', // booksGenreId=001（本）
               keyword: searchword, // 検索キーワード
-              hits: '10', // 表示件数
+              hits: '20', // 表示件数
               page: pageNum, // 取得ページ
             }
           })
 
           .done(function(data){
-            if (data.count > 0 ){ // ヒットしたデータの件数が０以上
-              $(data.Items).each((i, item) => {
-                // console.log(data.Items)
-                $('.lists').prepend(buildHTML(item)); // 要素の先頭に追加
-              })
-              // $.each(data.Items,function(i,item){
-              //   $('.lists').prepend(buildHTML(item));
-              // })
-            } else {
-              $('.lists').empty(); // listsを空にする
-              $('.lists').before('<div class="comment"></div>'); // listsの要素の上に追加
-              $('.comment').html('<p class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</p>'); // commentにhtmlを追加
-            } 
+            checkResponseData(data)
           })
           .fail(function(data){
-            console.log(data);
-            // API側のエラー使おう！！
-            if ( data.status == 0 ){
-              alert('通信エラー') 
-            } else {
-              alert(data.responseJSON.error_description)
-            }
+            errorHandling(data)
           })
+        }
+
+        // クリックイベントの発火
+        $('#js-search-button').on('click', function(){
+          rakutenAPI();
         });
       });
 
-      // 楽天ブックスの総合検索APIを使って製作してください。
-      // answerの挙動を良く見てね！
-      //
-      // 下記URLにAPIの仕様が載ってるいので、ブラウザで開いて参考にしてください。
-      // https://webservice.rakuten.co.jp/api/bookstotalsearch/
-      //
-      //
-      // [使うメソッド]
-      // $.each(配列, function functionName() {}) 配列に対しての繰り返し処理
-      // $.ajax({}) 外部ファイルやURLに対してデータをリクエストすることができます。
-      // 以下は今回使う$.ajaxの基本的な形です。
-      //
-      // $.ajax({
-      //   url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-      //   type: 'GET',
-      //   datatype: 'json',
-      //   data: {
-      //     // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-      //     applicationId: '1019399324990976605', // (今回はこのIDを使用してください)
-      //     booksGenreId: '001'
-      //   },
-      // }).done(function(data) {
-      //   // この中にデータ取得後の動きを記述していきます。
-      //   console.log(data);
-      // });
-      //
-      //
-      // $.ajaxによってデータが取得できたら、必要なデータ(作品名とか作者名とか)を取得します。
-      // 取得できたらHTMLに<ul class='lists'></ul>を用意しているので、その中に下のテンプレに沿ってデータを入れ込みましょう。
-      // <li class='lists__item'>
-      //  <div class='lists__item__inner'>
-      //    <a href='' class='lists__item__link' target='_blank'>
-      //      <img src='' class='lists__item__img' alt=''>
-      //      <p class='lists__item__detail'>作品名：</p>
-      //      <p class='lists__item__detail'>作者　：</p>
-      //      <p class='lists__item__detail'>出版社：</p>
-      //    </a>
-      //  </div>
-      // </li>
-      //
+    
     </script>
   </body>
 </html>
