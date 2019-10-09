@@ -94,11 +94,11 @@
       $(function() {
         $(".select").change(function(){
           var category=$(this).val();
-          if(category == "all"){
+          if(category === "all"){
             $('ul.list li').show();
           } else {
             $('ul.list li').each(function(){
-              $(this).data("category-type") == category ? $(this).show() : $(this).hide();
+              $(this).data("category-type") === category ? $(this).show() : $(this).hide();
             });
           }
         });
